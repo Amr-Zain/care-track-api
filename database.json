@@ -1,0 +1,12 @@
+{
+    "defaultEnv": {"ENV": "NODE_ENV"},
+    "env": {
+      "driver": "mysql",
+      "host": {"ENV": "HOST"},
+      "port": {"ENV": "DB_PORT"},
+      "database": {"ENV": "DATABASE"},
+      "user": {"ENV": "PRODUCTION_USERNAME"},
+      "password": {"ENV": "PRODUCTION_PASSWORD"},
+      "multipleStatements": true
+    }
+  }
