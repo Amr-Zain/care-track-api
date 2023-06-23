@@ -7,7 +7,7 @@ import { calcDiagnoisDate } from "../utill"
 import { randomUUID } from "crypto";
 
 export const listDiagnosis = async (req: RequestWithUserSession, res: Response) => {
-    //you need to check if he is othrized to read that data or not
+    
     const spec = req.body.specializations;
     const date = calcDiagnoisDate(req.body.date);
     const diagnosis = await datastore.listPatientDiagnosis(spec, date, req.body.isOwnDoctorDiagnois, req.user.id);
@@ -15,16 +15,7 @@ export const listDiagnosis = async (req: RequestWithUserSession, res: Response) 
 }
 
 export const postDiagnois = async (req: RequestWithUserSession, res: Response) => {
-    //you need to check if he is othrized to read that data or not
-    const currDate = new Date();
-    const date = new Date(currDate.getFullYear(),currDate.getMonth(),currDate.getDay(),0).getTime();
-    const appointement = await datastore.getAppointment(req.body.clinicId,date,req.body.patientId)
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
-    if(!appointement || appointement.doctorId !== req.user.id){
-        return res.status(StatusCodes.FORBIDDEN).json({ message: 'not autrized'})
-    }
+    
     const diagnosis: Diagnosis = {
         id: randomUUID(),
         date: Date.now(),

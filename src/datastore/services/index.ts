@@ -8,7 +8,7 @@ import { Mixin } from 'ts-mixer';
 */
 import connect from "../connect";
 import { Connection } from "mysql2/promise";
-import { User, Diagnosis,DoctorAppointment, Appointment,PatientAppointment,Medicine,Session, Clinic, Receptionsit, ClinicSchedule  } from "../../schema";
+import { User, Diagnosis,DoctorAppointment, Appointment,PatientAppointment,Medicine,Session, Clinic, Receptionsit, ClinicSchedule, BloodRequest  } from "../../schema";
 import { DoctorSchedule, DoctorData, NurseData, NurseFullData, DoctorFullData, Rating  } from "../../schema/doctor-nurse";
 
 import AppointmentDAO from "../DAO/appointmentDAO";
@@ -18,9 +18,11 @@ import ReceptionsitDAO from "../DAO/receptionistDAO";
 import UserDAO from "../DAO/userDAO";
 import SessionDAO from "../DAO/sessionDAO";
 import ClinicDAO from "../DAO/clinicDAO";
+import BloodBankDAO from "../DAO/blood-bankDAO";
+import { BloodDonator } from "../../schema/blood-bank";
 
 class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
-        DoctorNurseDAO,ReceptionsitDAO,SessionDAO{
+        DoctorNurseDAO,ReceptionsitDAO,SessionDAO, BloodBankDAO{
     private db :Connection;
     constructor(){
         const connectDB = async()=>{
@@ -62,7 +64,6 @@ class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
         await this.db.query(`UPDATE user set password = ? WHERE id = ?;`,[password,userId]);
         return;
     }
-
     async deleteUser(userId: string):Promise<void>{
         throw new Error('not implemented');
     }
@@ -96,7 +97,6 @@ class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
         const today = new Date(curr.getFullYear(), curr.getMonth(), curr.getDate()).getTime();
         const [ appointments ] = await this.db
                                 .execute(`
-                                            
             SELECT APP4.*,r.rating FROM (
                 SELECT app3.*, spe.name AS specialization FROM 
                 (
@@ -273,7 +273,6 @@ class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
             VALUES('${nurse.userId}','${nurse.fees}','${nurse.description}','${nurse.location}');`);
         }
     }
-
     async getDotor ( id:string) :Promise<DoctorFullData>{
         const [rows] = 
         await this.db.execute(`SELECT WC.* , SP.name as specialization
@@ -441,6 +440,100 @@ class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
                                 SET clinicName = ?, phone = ?
                                 WHERE id = ?;`,[ clinic.clinicName,clinic.phone ,clinic.id ]);
         
+    }
+    async createBloodRequest (bloodRequest: BloodRequest ) :Promise<void>{
+        await this.db.query(`INSERT INTO  blood 
+        (id, bloodType, isRequest, date, city, patientId, describtion ) 
+        VALUES('${bloodRequest.id}','${bloodRequest.bloodType}',${bloodRequest.isRequest},
+        '${bloodRequest.date}','${bloodRequest.city}','${bloodRequest.patientId}', '${bloodRequest.describtion}');`);
+    }
+    async deleteBloodRequest(id: string) :Promise<void>{
+        await this.db.execute(`DELETE FROM blood WHERE id = ?`,[id])
+    }
+    async getBloodRequest (id: string): Promise<BloodDonator>{
+        const [rows] = await this.db.execute(`SELECT blood.*, user.*
+                            FROM blood 
+                            INNER JOIN user
+                            ON blood.id = ? AND blood.patientId = user.id`,[id])
+        return <BloodDonator>rows[0];
+    }
+    async updateBloodRequest(bloodRequest: BloodRequest) :Promise<void>{
+        await this.db.query(`UPDATE blood 
+        SET bloodType = '${bloodRequest.bloodType}', isRequest = ${bloodRequest.isRequest}, 
+        date = '${bloodRequest.date}', city = ${bloodRequest.city}, describtion ='${bloodRequest.describtion}' 
+        WHERE id = '${bloodRequest.id}';`);
+    }
+    async listUserBloodRequests(userId: string):Promise<BloodRequest[]>{
+        const [ rows ] = await this.db.execute(`SELECT * FROM blood WHERE patientId = ?`,[userId])
+        return <BloodRequest[]>rows;
+    }
+    async searchDoctors({ city,gender, availability, sort, page, limit, specialization, name }){
+        const g = gender =='3'?'':`AND gender = ${gender}`;
+        const s = 
+            sort =='0'? '': sort == '2'? 'order by rating'
+            : 
+            `order by fees ${sort == '3'?'asc': 'desc'}`;
+        const [doctors] = await this.db.query(`SELECT doct.*, spe.name
+                                        (SELECT dd.* , city.name 
+                                            FROM
+                                            (
+                                                    SELECT doc.* ,c.location,c.id as clinicId
+                                            FROM(
+                                                SELECT u.id as doctorId, u.firstName,
+                                                    u.lastName, u.email, d.description, d.fees
+                                                FROM user as u
+                                                INNER JOIN doctor_Nurse as d
+                                                ON u.id = d.userId ${g}
+                                            )
+                                            INNER JOIN city 
+                                            ON city.id = ${city}
+                                            ) doc
+                                            INNER JOIN clinic as c
+                                            ON c.doctorId = doc.doctorId
+                                        ) doct
+                                        INNER JOIN specialization as spe
+                                        ON spe.id = ${specialization}
+                                        ${s}
+                                        LIMIT = ${limit} OFFSET ${(page-1)*limit} 
+
+                                        `);
+        return doctors
+    }
+    async searchNurse({ city,gender, availability, sort, page, limit, name }){
+        const g = gender =='3'?'':`AND gender = ${gender}`;
+        const s = 
+            sort =='0'? '': sort == '2'? 'order by rating'
+            : 
+            `order by fees ${sort == '3'?'asc': 'desc'}`;
+        const [doctors] = await this.db.query(`SELECT d.* , city.name 
+                                                FROM
+                                                (
+                                                    SELECT u.id as nurseId, u.firstName, d.location
+                                                        u.lastName, u.email, d.description, d.fees
+                                                    FROM user as u
+                                                    INNER JOIN doctor_Nurse as d
+                                                    ON u.id = d.userId ${g}
+                                                ) as d
+                                                INNER JOIN city 
+                                                ON d.city  = city.id AND city.id = ${city}
+                                            ${s}
+                                            LIMIT = ${limit} OFFSET ${(page-1)*limit} 
+                                        `);
+        return doctors
+    }
+    async searchBloodBank({ isRequest,bloodType, city, page, limit }){
+        const date = new Date().getTime()
+        const bloodSearch = await this.db.query(`
+                                SELECT blood.*, u.firstName,u.id as patientId 
+                                u.lastName, u.email, u.image
+                                FROM blood
+                                INNER JOIN user as u 
+                                ON blood.userId = u.id AND blood.isRequest = ${isRequest} 
+                                        AND blood.date >=${date} 
+                                        AND blood.city = ${city} AND bloodType = '${bloodType}'
+                                LIMIT = ${limit} OFFSET ${(page-1)*limit};`)
+        
+        return bloodSearch;
     }
 }
 export default new Datastore();

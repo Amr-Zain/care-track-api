@@ -64,3 +64,26 @@ export const listUserArticales =async (req: Request, res :Response)=>{
     const userArticles :Article[] = await datastore.getUserArticles(user.id)
     res.status(StatusCodes.OK).json({ data: userArticles });
 } */
+/* 
+name: string(), 
+        specialization: string(), 
+        gender: number().oneOf([0,1,2]),//0 male ,1 female, 2 both  
+        availability:number().oneOf([0,1,2]), // 1 today, 2 tomorrow, 0 any
+        sort:number().oneOf([0,1,2,3]),//0 best match,1 Top Rating 2 low price ,3 high price
+        bloodType:string().oneOf(['A+','A-','B+','B-','O-','AB+','AB-','All']) */
+export const search = async(req :RequestWithUserSession, res :Response)=>{
+    const { gender, availability, sort, bloodType, page, limit, specialization, name } = req.query;
+    const { type, city } = req.params;
+    if(type === 'doctor'){
+        const doctors = await datastore.searchDoctors({ city,gender, availability, sort, page, limit, specialization, name })
+        return res.status(StatusCodes.OK).json({ data:doctors});
+    }else if(type === 'nurse'){
+        const nurses = await datastore.searchNurse({ city, gender, availability, sort, page, limit, name })
+        return res.status(StatusCodes.OK).json({ data:nurses});
+    }else {
+        const isRequest = type == 'donation_request';
+        return await datastore.searchBloodBank({ isRequest,bloodType, city, page, limit });
+        
+    }
+   
+}

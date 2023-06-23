@@ -6,7 +6,7 @@ export default interface Patient {
     lastName: string;
     email: string;
     phone: number;
-    city: string;
+    city: string |number;
     age: number;
     img: string;
 }

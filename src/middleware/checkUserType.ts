@@ -5,7 +5,7 @@ import { RequestWithUserSession, UserType } from "../types/util";
 
 const checkUserType = (type: number[]) =>{
     return async(req :RequestWithUserSession, res :Response, next :NextFunction)=>{
-        if( type.includes(+req.user.userType) ) 
+        if( !type.includes(+req.user.userType) ) 
             return res.status(StatusCodes.FORBIDDEN).json({message: 'not authrized'}) 
         next();
     }

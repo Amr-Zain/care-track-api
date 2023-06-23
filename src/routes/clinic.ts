@@ -1,6 +1,4 @@
-//import validateRequest from "../middleware/validateRequest";
-//import { createUserSchema, getUserByIdSchema,  } from "../schema/user";
-//import { createUser, getUserById } from '../controllers/user';
+
 import { Router } from'express';
 import requireUser from '../middleware/requireUser';
 import validateRequest from '../middleware/validateRequest';
@@ -12,8 +10,6 @@ import checkUserType from '../middleware/checkUserType';
 
 const clinicRouter = Router();
 
-//doctorRouter.route('/').post(/* [validateRequest(createUserSchema)], */ createUser);
-//doctorRouter.route('/:id').get(/* validateRequest(getUserByIdSchema), */ getUserById);
 
 clinicRouter.route('/')
             .get([requireUser, checkUserType([2])], listClinics)
@@ -21,7 +17,7 @@ clinicRouter.route('/')
 
 clinicRouter.route('/:id')
             .put([requireUser,validateRequest(createClinicSchema),checkUserType([2])],updateClinic)
-            .delete([requireUser,validateRequest(createClinicSchema),checkUserType([2])],deleteClinic);
+            .delete([requireUser,validateRequest(createClinicSchema),checkUserType([2])],deleteClinic); 
 
 clinicRouter.route('/:clinicId/schedule')
             .post([requireUser,checkUserType([2]),validateRequest(createScheduleSchema)],postClinicSchedule)
@@ -36,3 +32,5 @@ clinicRouter.route('/:clinicId/schedule/:day')
 clinicRouter.route('/:clinicId/available_date')
             .get([validateRequest(getAvailableAppointmentsSchema)], )
 export default  clinicRouter;
+
+

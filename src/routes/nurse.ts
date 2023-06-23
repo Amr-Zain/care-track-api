@@ -12,5 +12,5 @@ nurseRouter.route('/')
             .post([requireUser, validateRequest(postNurseDataSchema),userTypeCheck([3])], createNurseData)
             .get([requireUser,userTypeCheck([3])], getNurse)
             .put([requireUser, validateRequest(postNurseDataSchema),userTypeCheck([3])], updateNurseData);
-nurseRouter.route('/:id').get(validateRequest(getDoctorNurseSchema),getNurse)
+nurseRouter.route('/:id').get(validateRequest(getDoctorNurseSchema),getNurse);
 export default  nurseRouter;

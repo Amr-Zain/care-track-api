@@ -1,6 +1,4 @@
-//import validateRequest from "../middleware/validateRequest";
-//import { createUserSchema, getUserByIdSchema,  } from "../schema/user";
-//import { createUser, getUserById } from '../controllers/user';
+
 import { Router } from'express';
 import requireUser from '../middleware/requireUser';
 import validateRequest from '../middleware/validateRequest';
