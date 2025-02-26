@@ -1,9 +1,12 @@
 import { RequestWithUserSession } from "../types/util";
-import datastore from '../datastore/services/index';
+import Datastore from '../datastore/services/index';
 import { StatusCodes } from "http-status-codes";
 import { Response, Request } from "express";
 import { Clinic, Receptionsit, User } from "../schema";
 import crypto from "crypto";
+import { pool } from '../datastore/connect';
+
+const datastore = new Datastore(pool);
 
 export const createReceptionsit =async (req :RequestWithUserSession, res :Response) => {
     const recep = req.body;

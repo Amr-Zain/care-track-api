@@ -1,5 +1,4 @@
 import { StatusCodes } from 'http-status-codes';
-import datastore from '../datastore/services';
 import { Request, Response } from 'express';
 import { createToken } from '../jwt';
 
@@ -7,6 +6,11 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session, User } from '../schema';
 import { RequestWithUserSession } from '../types/util';
+import Datastore from '../datastore/services';
+import { pool } from '../datastore/connect';
+
+const datastore = new Datastore(pool);
+
 
 export const createUserSession = async (req :Request, res:Response)=>{
     //email password

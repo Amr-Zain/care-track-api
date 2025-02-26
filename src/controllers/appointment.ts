@@ -1,9 +1,12 @@
 import { RequestWithUserSession } from "../types/util";
-import datastore from '../datastore/services/index';
 import { StatusCodes } from "http-status-codes";
 import { Response } from "express";
 import { Appointment } from "../schema";
 import { randomUUID } from "crypto";
+import Datastore from '../datastore/services';
+import { pool } from '../datastore/connect';
+
+const datastore = new Datastore(pool);
 
 
 export const listAppointments =async (req :RequestWithUserSession, res :Response) => {

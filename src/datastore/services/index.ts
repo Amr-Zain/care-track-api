@@ -6,8 +6,7 @@ import SessionStore from "./session";
 import UserStore from "./user";
 import { Mixin } from 'ts-mixer';
 */
-import connect from "../connect";
-import { Connection } from "mysql2/promise";
+import { Connection, Pool } from "mysql2/promise";
 import { User, Diagnosis,DoctorAppointment, Appointment,PatientAppointment,Medicine,Session, Clinic, Receptionsit, ClinicSchedule, BloodRequest  } from "../../schema";
 import { DoctorSchedule, DoctorData, NurseData, NurseFullData, DoctorFullData, Rating  } from "../../schema/doctor-nurse";
 
@@ -20,15 +19,14 @@ import SessionDAO from "../DAO/sessionDAO";
 import ClinicDAO from "../DAO/clinicDAO";
 import BloodBankDAO from "../DAO/blood-bankDAO";
 import { BloodDonator } from "../../schema/blood-bank";
+import { pool } from "../connect";
+
 
 class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
         DoctorNurseDAO,ReceptionsitDAO,SessionDAO, BloodBankDAO{
-    private db :Connection;
-    constructor(){
-        const connectDB = async()=>{
-            this.db = await connect();
-        }
-        connectDB();
+    private db :Pool;
+    constructor(pool: Pool){
+        this.db =  pool;
     }    
     async createUser(user: User): Promise<void>{
         await this.db.query(`INSERT INTO user 
@@ -536,4 +534,4 @@ class Datastore implements UserDAO, AppointmentDAO, DiagnosisDAO,ClinicDAO,
         return bloodSearch;
     }
 }
-export default new Datastore();
+export default Datastore;

@@ -1,8 +1,11 @@
 import { DoctorData, NurseData } from "../schema/doctor-nurse";
 import { RequestWithUserSession } from "../types/util";
-import datastore from '../datastore/services/index';
+import Datastore from '../datastore/services/index';
 import { StatusCodes } from "http-status-codes";
 import { Response } from "express";
+import { pool } from '../datastore/connect';
+
+const datastore = new Datastore(pool);
 
 export const createNurseData =async (req :RequestWithUserSession, res :Response) => {
     const nurseData :NurseData= {

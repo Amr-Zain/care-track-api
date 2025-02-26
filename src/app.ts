@@ -15,10 +15,10 @@ import auth from './middleware/authentication';
 import notFound from './middleware/notFound';
 import errorHandler from './middleware/errorHandler';
 
-import connect from './datastore/connect';
+import { createPool, pool } from './datastore/connect';
 import path from 'path';
 
-dotenv.config({ path:path.join(__dirname+'\\src\\..\\..\\.env')});
+dotenv.config({ path:path.join(__dirname, './../.env')});
 
 const app = express();
 const PORT = process.env.PORT || 3030;
@@ -26,6 +26,7 @@ app.use(express.json({ limit: '3mb' }));
 app.use(express.urlencoded({ extended: false, limit: '3mb' }));
 app.use(auth);
 app.use(express.static(path.join(__dirname,"../public")));
+
 
 // extra security packages
 /* app.use(
@@ -58,8 +59,10 @@ app.use('/api/v1/appointmets', appointmentRouter);
 app.use(notFound);
 app.use(errorHandler);
 
-(function start(){
+(async function start(){
     //connect to the db
-    connect();
+    await createPool();
+    if(pool) console.log("Pool created successfully");
+    
     app.listen(PORT,()=>console.log(`app listening on port ${PORT}`))
 })();

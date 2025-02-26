@@ -1,10 +1,13 @@
 import { RequestWithUserSession } from "../types/util";
-import datastore from '../datastore/services/index';
+import Datastore from '../datastore/services/index';
 import { StatusCodes } from "http-status-codes";
 import { Response, Request } from "express";
 import { Diagnosis, Medicine, Receptionsit, User } from "../schema";
 import { calcDiagnoisDate } from "../utill"
 import { randomUUID } from "crypto";
+import { pool } from '../datastore/connect';
+
+const datastore = new Datastore(pool);
 
 export const listDiagnosis = async (req: RequestWithUserSession, res: Response) => {
     

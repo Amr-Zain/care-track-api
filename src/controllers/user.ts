@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
-import datastore from '../datastore/services/index';
+import Datastore from '../datastore/services/index';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { StatusCodes } from 'http-status-codes';
 import  User  from "../schema/user";
 import { RequestWithUserSession } from "../types/util";
+import { pool } from "../datastore/connect";
+
+const datastore = new Datastore(pool);
 //u have to add profile img url to the schema and hanle its req
 
 export const createUser = async(req :Request, res :Response)=>{
