@@ -7,7 +7,7 @@ export default async function connect(): Promise<Connection>{
             host: process.env.HOST,
             user: 'amrzain',
             database: "care_track",
-            password:'AmrZAin112211',
+            password:process.env.DB_PASSWORD,
             port: parseInt(process.env.DB_PORT)
             
             });

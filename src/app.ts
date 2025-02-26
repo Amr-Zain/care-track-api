@@ -18,7 +18,7 @@ import errorHandler from './middleware/errorHandler';
 import connect from './datastore/connect';
 import path from 'path';
 
-dotenv.config({ path:__dirname+'\\src\\.env'});
+dotenv.config({ path:path.join(__dirname+'\\src\\..\\..\\.env')});
 
 const app = express();
 const PORT = process.env.PORT || 3030;
@@ -26,7 +26,6 @@ app.use(express.json({ limit: '3mb' }));
 app.use(express.urlencoded({ extended: false, limit: '3mb' }));
 app.use(auth);
 app.use(express.static(path.join(__dirname,"../public")));
-console.log(__dirname,"../public")
 
 // extra security packages
 /* app.use(
@@ -62,6 +61,5 @@ app.use(errorHandler);
 (function start(){
     //connect to the db
     connect();
-
     app.listen(PORT,()=>console.log(`app listening on port ${PORT}`))
 })();

@@ -8,7 +8,7 @@ const patientRouter = Router();
 
 patientRouter.route('/').post([validateRequest(createUserSchema)], createUser)
                         .get([requireUser], getAuthedUser);
-patientRouter.route('/photo').post([validateRequest,],postUserImage)
+patientRouter.route('/photo').post([validateRequest,],postUserImage);
 
 
 

@@ -7,12 +7,10 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session, User } from '../schema';
 import { RequestWithUserSession } from '../types/util';
-import { REFUSED } from 'dns';
 
 export const createUserSession = async (req :Request, res:Response)=>{
     //email password
         const {email, password, userType } = req.body;
-       
         //validatePassword
         const user =  await validateUserAndPassword(email, password, userType);
         if(!user){

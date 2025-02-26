@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form1">
+        <label> title</label>
+        <input name="title" type="text">
+        <label> body</label>
+        <input name="body" type="file">
+        <label> img</label>
+        <input name="image" type="file">
+        <button id="sub">submit</button>
+    </form>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        const button = document.getElementById('sub');
+        async function postData(url = '', data = {}) {
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'no-cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                headers: {
+                    //'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImVhMzNhYzM1LTQ1Y2YtNGEyMC1iMTUyLTk0NWI0YjRiYzQ2YyIsInVzZXJuYW1lIjoiYW1yemFpbiIsImVtYWlsIjoiYW1yQGdtYWlsLmNvbSIsImZpcnN0TmFtZSI6IkFtciIsImxhc3ROYW1lIjoiWmFpbiIsInBhc3N3b3JkIjoiJDJhJDEwJDRZSS9HcW93cjFkSlFBRnlqR29SMnU4LlVlM2ZicDdORU53c1Z3aUFYTU5lQ1pDWTYwVUIyIiwiY3JlYXRlZEF0IjoiMTY2NTEyNzczNTUyNSIsInNlc3Npb25JZCI6IjA2OTI5Mjk2LTYyYWItNDAzZi04MzMxLTUyYmNiYzEwYjUxOCIsImlhdCI6MTY2NTM4MDkxNywiZXhwIjoxNjY1MzgxNTE3fQ.k0dLQVX-mv3xT-FytszW0vgHz8N28QPY-d_OwlLjiG8',
+                    'x-refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA2OTI5Mjk2LTYyYWItNDAzZi04MzMxLTUyYmNiYzEwYjUxOCIsInVzZXJJZCI6ImVhMzNhYzM1LTQ1Y2YtNGEyMC1iMTUyLTk0NWI0YjRiYzQ2YyIsInVzZXJBZ2VudCI6IlBvc3RtYW5SdW50aW1lLzcuMjkuMiIsImNyZWF0ZWRBdCI6MTY2NTI0MDQ2NDE1MywibGFzdEFjY2VzcyI6MTY2NTI0MDQ2NDE1MywidmFsaWQiOnRydWUsImlhdCI6MTY2NTI0MDQ2NCwiZXhwIjoxNjk2Nzk4MDY0fQ.Z5gphndKsgVxFFHg-aO4dzItYgw_T59d5fFSxBYhOMk',
+                    'Access-Control-Allow-Origin':'*',
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: data  // body data type must match "Content-Type" header
+            });
+            return response.json(); // parses JSON response into native JavaScript objects
+            }
+            
+            button.addEventListener('click',async(e)=>{
+                e.preventDefault();
+                var input = document.querySelectorAll('input[type="file"]');
+                console.log(input);
+                /* var data = new FormData();
+                data.append('body', input[0].files[0]);
+                //data.append('image',  input[1].files[0]);
+                data.append('title', 'zain'); */
+                const data = { body: input[0].files[0],title:'zain'}
+                
+                const d= await postData('http://localhost:3000/api/v1/articles', data)
+                console.log(d)
+    
+            });
+    </script>
+</body>
+</html>
+
+
