@@ -2,7 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import { verify, createToken } from "../jwt";
 import Datastore from '../datastore/services'
 import { Session } from "../schema";
+import { pool } from "../datastore/connect";
 const auth = async (req :Request, res :Response, next :NextFunction) =>{
+    const datastore = new Datastore(pool)
     let accessToken = req.headers.authorization
     const refreshToken :any = req.headers['x-refresh'];
     if(accessToken && accessToken.startsWith('Bearer ')){
@@ -19,10 +21,10 @@ const auth = async (req :Request, res :Response, next :NextFunction) =>{
         const { decoded } = verify(refreshToken);
             if(!decoded || !decoded?.id) return next();
 
-            const session :Session = await Datastore.getSessionById(decoded.id);
+            const session :Session = await datastore.getSessionById(decoded.id);
             if(!session || !session.valid) return next();
 
-            const user = await Datastore.getUserById(session.userId);
+            const user = await datastore.getUserById(session.userId);
             if(!user) return next();
 
             const newAccessToken = createToken({ id: user.id, userType: user.userType, sessionId: session.id },
