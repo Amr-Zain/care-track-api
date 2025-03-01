@@ -96,16 +96,15 @@ module.exports = {
         allowNull: true,
       },
       birthday: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       createdAt: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: false,
       },
     });
    
-
     await queryInterface.createTable('clinic', {
       id: {
         type: Sequelize.STRING(36),
@@ -241,7 +240,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       date: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       describtion: {
@@ -318,7 +317,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       date: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: false,
       },
       description: {
@@ -500,17 +499,17 @@ module.exports = {
         allowNull: true,
       },
       createdAt: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: true,
       },
       lastAccess: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
         allowNull: true,
       },
     });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down (queryInterface) {
     await queryInterface.dropTable('medicine');    // Depends on diagnosis
 await queryInterface.dropTable('rating');      // Depends on user
 await queryInterface.dropTable('appointment'); // Depends on user, clinic
