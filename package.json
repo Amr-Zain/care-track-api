@@ -3,7 +3,7 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "start": "nodemon dist/app.js && tsc --watch",
+    "start": "tsc --watch && nodemon dist/app.js",
     "lint": "eslint . --ext .ts",
     "migration:create": "npx sequelize-cli migration:create",
     "migrate": "npx -r ts-node/register sequelize-cli db:migrate",
