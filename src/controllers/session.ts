@@ -5,45 +5,42 @@ import { createToken } from '../jwt';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { Session, User } from '../schema';
-import { RequestWithUserSession } from '../types/util';
-import Datastore from '../datastore/services';
-import { pool } from '../datastore/connect';
+import { RequestWithUserSession } from '../utill/types';
+import Datastore from '../db/services';
 
-const datastore = new Datastore(pool);
+const datastore = new Datastore();
 
 
 export const createUserSession = async (req :Request, res:Response)=>{
-    //email password
-        const {email, password, userType } = req.body;
+        const {email, password } = req.body;
+        console.log({email,password})
         //validatePassword
-        const user =  await validateUserAndPassword(email, password, userType);
+        const user =  await validateUserAndPassword(email, password);
         if(!user){
             return res.status(StatusCodes.UNAUTHORIZED).json({ message:'wrong email or password'});
         }
-        const withReset = user as UserWithReset;
+        console.log(user)
+      /*   const withReset = user as UserWithReset;
         if(withReset.userType == 4 && withReset?.reset ){
             res.status(StatusCodes.RESET_CONTENT).json( { 
                 message: 'You need to reset your password first',
                 url: '/api/v1/users/reset_password'})
-        }
-        if( userType != user.userType){
-            return res.status(StatusCodes.BAD_REQUEST).json({ Message:'wrong userType '})
-        }
+        } */
         // Create a session
         const session: Session = {
             id: crypto.randomUUID(),
-            userType: req.body.userType,
+            userType: user.userType,
             userId: user.id,
             userAgent: req.get('User-Agent'),
-            createdAt:  Date.now(),
-            lastAccess:  Date.now(),
+            createdAt: new Date(),
+            lastAccess: new Date(),
             valid: true,
         }
         
         
         await datastore.createSession(session);
         // create access token
-        const accessToken = createToken({ id: user.id, userType, sessionId: session.id},
+        const accessToken = createToken({ id: user.id, userType: user.userType, sessionId: session.id},
                             { expiresIn: process.env.JWT_ACCESS_TTL });
         // create refresh token
         const refreshToken = createToken(session, 
@@ -67,14 +64,14 @@ export const deleteUserSession = async (req :RequestWithUserSession , res :Respo
 interface UserWithReset extends User{
     reset :boolean
 }
-async function validateUserAndPassword (email :string, password :string, userType: number):Promise<(Omit<User,'password'>) | false | UserWithReset> {
+async function validateUserAndPassword (email :string, password :string):Promise<(Omit<User,'password'>) | false | UserWithReset> {
     const user = await datastore.getUserByEmail(email);
     if(!user){
         return false;
     }
-    if(user.userType == 4 && user.password === process.env.DOMMY_PASSWORD){
+   /*  if(user.userType == 4 && user.password === process.env.DOMMY_PASSWORD){
         return { ...user, reset: true};
-    }
+    } */
     try{
         const isValid = await bcrypt.compare(password, user.password);
         if(!isValid) return false;

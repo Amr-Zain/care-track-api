@@ -4,5 +4,4 @@ const errorHandler = (err :Error, req :Request, res :Response, next :NextFunctio
     res.status(StatusCodes.BAD_REQUEST).json({message: err.message})
 }
 
-
 export default errorHandler;

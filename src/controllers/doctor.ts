@@ -1,11 +1,10 @@
 import { DoctorData } from "../schema/doctor-nurse";
-import { RequestWithUserSession } from "../types/util";
-import Datastore from '../datastore/services/index';
+import { RequestWithUserSession } from "../utill/types";
+import Datastore from '../db/services';
 import { StatusCodes } from "http-status-codes";
 import { Response } from "express";
-import { pool } from '../datastore/connect';
 
-const datastore = new Datastore(pool);
+const datastore = new Datastore();
 
 export const createDoctorData =async (req :RequestWithUserSession, res :Response) => {
     const doctorData :DoctorData= {
@@ -19,19 +18,18 @@ export const createDoctorData =async (req :RequestWithUserSession, res :Response
     res.status(StatusCodes.CREATED).json({ message:'Doctor Data created'})
 }
 export const getDoctor =async ( req :RequestWithUserSession, res :Response) => {
-    let id = req.params.id;
-    if( !id ){
-        id = req.user.id;
-        if(!id)res.status(StatusCodes.BAD_REQUEST).json({ message: 'id field is required' })
-    }
-
-    const doctor = await datastore.getDotor(id);
-    const clinics = await datastore.listDoctorClinics(doctor.id);
-    //add the clinics
-    doctor['clinics'] = clinics;
+    const id = req.params.id ;
+    console.log(id)
+    const doctor = await datastore.getDoctor(id);
     res.status(StatusCodes.OK).json({ data: doctor })
 }
-export const updateDoctorData =async(req :RequestWithUserSession, res :Response) =>{
+export const getTotalPatients = async (req :RequestWithUserSession, res :Response)=>{
+    console.log(req.user)
+    console.log(req.user.id)
+    const count = await datastore.getDoctorPatientCount(req.user.id);
+    res.status(StatusCodes.OK).json({ count }) 
+}
+export const updateDoctorData =async(req :RequestWithUserSession, res :Response) =>{  
     const doctorData: DoctorData = {
         userId: req.user.id,
         fees: req.body.fees,

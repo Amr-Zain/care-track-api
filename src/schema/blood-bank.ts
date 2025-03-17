@@ -7,7 +7,7 @@ export default interface BloodRequest {
     bloodType: ['A+', 'A-', 'B+', 'B-', 'O-', 'AB+', 'AB-', 'All'];
     isRequest: boolean;
     id: string;
-    date: number;
+    date: Date;
     city: string | number;
     patientId: string;
     describtion: string;
@@ -20,8 +20,8 @@ const body = object({
     bloodType: string()
         .oneOf(['A+', 'A-', 'B+', 'B-', 'O-', 'AB+', 'AB-', 'All'])
         .required('bloodType is required'),
-    date: number().required('date for the request is required'),
-    city: number().required('city id is required')
+    date: number().positive().required('date for the request is required'),
+    city: string().required('city id is required')
 })
 const params = object({
     requestId: string().required('request id is required')

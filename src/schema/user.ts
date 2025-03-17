@@ -1,5 +1,5 @@
 import { object, string, date, mixed, number, bool } from "yup";
-import { UserType } from "../types/util";
+import { UserType } from "../utill/types";
 
 export default interface User {
     id : string;
@@ -9,12 +9,11 @@ export default interface User {
     email: string;
     phone: number;
     city: string;
-    age: number;
-    img: string;
+    image: string;
     gender: boolean;
     birthday: Date;
     password: string;
-    createdAt: number;
+    createdAt: Date;
 }
 export const createUserSchema = object({/* date validation not working errors not sent back to the user */
     body:object({
@@ -27,6 +26,18 @@ export const createUserSchema = object({/* date validation not working errors no
         password: string().min(6,'password has to be at least 6 digits').max(20,'password must be less than 20 digits').required('password is required'),
         userType:  mixed().required('userType is required')
         .oneOf([1,2,3,4,'1','2','3','4']) ,
-        gender: bool().required('gender is required')
+        gender: bool()
     })
-}) 
+});
+export const postUserImageSchema = object({
+    file: mixed()
+      .required('An image file is required.')
+      .test('fileSize', 'File Size is too large', (value: any) => {
+        if (!value) return true; // Skip if no file
+        return value.size <= 2 * 1024 * 1024; // 2MB limit (adjust as needed)
+      })
+      .test('fileType', 'Unsupported File Format', (value: any) => {
+        if (!value) return true; // Skip if no file
+        return ['image/jpeg', 'image/png', 'image/gif'].includes(value.mimetype); // Allowed types
+      }),
+  });

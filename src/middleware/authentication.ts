@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { verify, createToken } from "../jwt";
-import Datastore from '../datastore/services'
+import Datastore from '../db/services'
 import { Session } from "../schema";
-import { pool } from "../datastore/connect";
 const auth = async (req :Request, res :Response, next :NextFunction) =>{
-    const datastore = new Datastore(pool)
+    const datastore = new Datastore()
     let accessToken = req.headers.authorization
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const refreshToken :any = req.headers['x-refresh'];
     if(accessToken && accessToken.startsWith('Bearer ')){
         accessToken = accessToken.split(' ')[1]; 
@@ -30,7 +30,7 @@ const auth = async (req :Request, res :Response, next :NextFunction) =>{
             const newAccessToken = createToken({ id: user.id, userType: user.userType, sessionId: session.id },
                                             { expiresIn: process.env.JWT_ACCESS_TTL });
             res.setHeader("x-access-token", newAccessToken);
-            
+            req['token'] = newAccessToken
             req['user'] = { id: user.id, userType: user.userType, sessionId: session.id };
             next();
     }else{

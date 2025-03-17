@@ -1,12 +1,11 @@
-import { RequestWithUserSession } from "../types/util";
-import Datastore from '../datastore/services/index';
+import { RequestWithUserSession } from "../utill/types";
+import Datastore from '../db/services';
 import { StatusCodes } from "http-status-codes";
 import { Response } from "express";
 import { randomUUID } from "crypto";
 import { BloodRequest } from "../schema";
-import { pool } from '../datastore/connect';
 
-const datastore = new Datastore(pool);
+const datastore = new Datastore();
 
 
 export const listUserBloodRequest = async (req: RequestWithUserSession, res: Response) => {
@@ -19,7 +18,7 @@ export const createBloodRequest = async (req: RequestWithUserSession, res: Respo
         bloodType: req.body.bloodType,
         patientId: req.user.id,
         date: req.body.date,
-        describtion: req.body.describtion,
+        describtion: req.body?.describtion,
         city: req.body.city,
         isRequest: req.body.isRequest
     }
@@ -41,9 +40,6 @@ export const deleteBloodRequest = async (req: RequestWithUserSession, res: Respo
 
 export const getBloodRequest = async (req: RequestWithUserSession, res: Response) => {
     const bloodRequest = await datastore.getBloodRequest(req.params.requestId);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
-    delete bloodRequest.password;
     res.status(StatusCodes.OK).json({ data: bloodRequest});
 }
 

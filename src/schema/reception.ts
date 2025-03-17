@@ -1,8 +1,8 @@
 import { bool, number, object, string } from "yup"
 import { User } from ".";
 
-export default interface Receptionsit extends User{
-    userId :string;
+export default interface Receptionist extends User{
+    receptionistId :string;
     clinicId :string;
     doctorId :string
 }
@@ -17,23 +17,23 @@ const body = object({
     birthday: number().required('birthday is required'), 
     gender: bool().required('gender is required')
 })
-export const createReceptionsitSchema = object({
+export const createreceptionistSchema = object({
     body,
     params: object({
         clinicId: string().required('clinicId is required')
     })
 });
-export const updateReceptionsitSchema = object({
+export const updatereceptionistSchema = object({
     body
 })
-export const getReceptionsitSchema = object({
+export const getreceptionistSchema = object({
     params :object({
-        receptionsitId: string().required('receptionsitId is required')
+        receptionistId: string().required('receptionistId is required')
     })
 })
-export const deleteReceptionsitSchema = object({
+export const deletereceptionistSchema = object({
     params :object({
         id: string().required('clinicId is required'),
-        receptionsitId: string().required('receptionsitId is required')
+        receptionistId: string().required('receptionistId is required')
     })
 })

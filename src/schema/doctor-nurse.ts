@@ -1,5 +1,6 @@
-import { bool, number, object, string } from "yup";
+import { number, object, string } from "yup";
 import { User } from ".";
+import Clinic from "./clinic";
 
 export interface DoctorData {
     userId: string
@@ -14,7 +15,15 @@ export interface NurseData {
     description: string;
     location: string;
 }
-export interface DoctorSchedule {
+export interface DoctorNurseAttributes {
+    userId: string;
+    specialization: string | null;
+    fees: number; // DECIMAL(6, 2) maps to number
+    description: string;
+    appointmentTime: number | null;
+    location: string | null;
+  }
+  export interface DoctorSchedule {
     day: [0, 1, 2, 3, 4, 5, 6];
     DoctorId: string;
     from: TimeRanges;
@@ -24,10 +33,10 @@ export interface DoctorSchedule {
 export interface Rating {
     ratedId: string,
     patientId: string,
-    value: number,
+    rating: number,
     comment: string
 }
-export interface DoctorFullData extends DoctorData, User { }
+export interface DoctorFullData extends DoctorData, User { clinics: Clinic[] }
 export interface NurseFullData extends NurseData, User { }
 const body = object({
     description: string().required('description is required'),
@@ -37,14 +46,14 @@ const body = object({
 });
 
 
-export const postDoctorDataSchema = object({
+export const postDoctorDataSchema = object({ 
     body
 });
 export const postNurseDataSchema = object({
     body: object({
         description: string().required('description is required'),
         location: string().required('location is required'),
-        fees: number()
+        fees: number().positive()
     }),
 });
 export const getDoctorNurseSchema = object({
@@ -55,22 +64,7 @@ export const getDoctorNurseSchema = object({
 export const updateDoctorDataSchema = object({
     body
 })
-/* 
-export const createPatientSchema = object({
-    body:object({
-        firstName: string().required('firstName is required'),
-        lastName: string().required('lastName is required'),
-        email : string().email('must be a valid email').required('email is reqired'),
-        phone: string().matches(/^01[0125][0-9]{8}$/, 'Phone number is not valid').required('phone is reqired'),
-        city: string().required('city is required'),
-        fees: string().required('fees is required'),
-        description: string().required('city is required'),
-        location: string().required('city is required'),
-        specialization: string().required('specialization is required'),
-        gender: bool().required('gender is required'),
-        password: string().required('password is required')
-    })
-}); */
+
 export const getDoctorAppointmentsSchema = object({
     body: object({
         date: number().required('date of the Appointments is required'),

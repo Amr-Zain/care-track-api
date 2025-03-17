@@ -3,10 +3,10 @@ import { number, object, string } from "yup";
 export default interface Appointment{
     id: string;
     patientId: string;
-    clinicId: string;
-    nurseId: string;
-    bookedAt: number;
-    date: number;
+    clinicId: string | null;
+    nurseId: string | null;
+    bookedAt: Date;
+    date: Date;
 }
 
 export interface PatientAppointment extends Appointment{
@@ -18,26 +18,56 @@ export interface PatientAppointment extends Appointment{
     fees: number;
 }
 
-export interface DoctorAppointment extends Appointment {
-    bookedAt: number; 
-    date: number; 
+export interface DoctorNurseAppointment extends Appointment {
+    bookedAt: Date; 
+    date: Date; 
     patientName: string;
     patientImg: string;
-    patientAge: number;
+    patientBirthday: Date;
     patientEmail: string;
 }
-export const  AppointmentsSchema = object({
+export const AppointmentsSchema = object({
     body: object({
-        clinicId: string().required('clinicId is required'),
+        clinicId: string().nullable(), 
+        nurseId: string().nullable(), 
         date: number().required('date of the appointment is required'),
+    }).test(
+        function (value: { clinicId?: string; nurseId?: string }) {
+            const { clinicId, nurseId } = value;
+            if (!clinicId && !nurseId) {
+            return this.createError({
+                path: 'clinicId', 
+                message: 'Either clinicId or nurseId is required',
+            });
+            }else if( !!clinicId && !!nurseId){
+                console.log({clinicId:!!clinicId,nurseId:!!nurseId})
+                return this.createError({
+                    path: 'ids', 
+                    message: 'Either clinicId or nurseId is required not both', 
+                }); 
+            }
+            return true; 
+        }
+        ),
+});
+
+export const  listAppointmentsSchema = object({
+    query: object({
+        newDate: number().positive(),
     })
 })
 
 export const  updateAppointmentsSchema = object({
+    params: object({
+        appointmentId: string().required('appointmentId is required'),
+    }),
     body: object({
-        clinicId: string().required('clinicId is required'),
-        newDate: number().required('newDate of the appointment is required'),
-        date: number().required('date of the appointment is required'),
+        newDate: number().positive().required('newDate of the appointment is required'),
+    })
+})
+export const  cancelAppointmentsSchema = object({
+    params: object({
+        appointmentId: string().required('appointmentId is required'),
     })
 })
 

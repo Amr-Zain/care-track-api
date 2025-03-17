@@ -1,4 +1,4 @@
-import { object, string, array, mixed, SchemaOf, number, date } from "yup";
+import { object, string, number, date } from "yup";
 
 export default interface Patient {
     id : string;
@@ -11,17 +11,6 @@ export default interface Patient {
     img: string;
 }
 
-export const createPatient = object({
-    body:object({
-        firstName: string().required('firstName is required'),
-        lastName: string().required('lastName is required'),
-        email : string().email('must be a valid email').required('email is reqired'),
-        phone: string().matches(/^01[0125][0-9]{8}$/, 'Phone number is not valid').required('phone is reqired'),
-        city: string().required('city is required'),
-        birthDay: date().required('birthDay is required'),
-        password: string().required('password is required'),
-    })
-})
 export const getPatienAppointmentsSchema = object({
     
 })

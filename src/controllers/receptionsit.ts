@@ -1,14 +1,13 @@
-import { RequestWithUserSession } from "../types/util";
-import Datastore from '../datastore/services/index';
+import { RequestWithUserSession } from "../utill/types";
+import Datastore from '../db/services';
 import { StatusCodes } from "http-status-codes";
 import { Response, Request } from "express";
-import { Clinic, Receptionsit, User } from "../schema";
+import { Clinic, Receptionist, User } from "../schema";
 import crypto from "crypto";
-import { pool } from '../datastore/connect';
 
-const datastore = new Datastore(pool);
+const datastore = new Datastore();
 
-export const createReceptionsit =async (req :RequestWithUserSession, res :Response) => {
+export const createreceptionist =async (req :RequestWithUserSession, res :Response) => {
     const recep = req.body;
     recep.createdAt = Date.now();
     recep.id = crypto.randomUUID();
@@ -28,11 +27,11 @@ export const createReceptionsit =async (req :RequestWithUserSession, res :Respon
     } */
     
     await datastore.createUser(recep);
-    await datastore.createReceptionsit(recep.clinicId, recep.id, req.user.id)
+    await datastore.createReceptionist(recep.clinicId, recep.id, req.user.id)
     res.status(StatusCodes.OK).json({  message: 'receptionist created' });
 }
 /* export const addExistingReceptionsist =async (req :RequestWithUserSession, res :Response) => {
-    const recep = await datastore.isReceptionsitOfDoctor(req.user.id, req.body.email);
+    const recep = await datastore.isreceptionistOfDoctor(req.user.id, req.body.email);
     console.log(req.user.id)
     if(!recep){
         res.status(StatusCodes.FORBIDDEN).json({ message: 'Not Authirzed or Receptionist not exist'});
@@ -48,28 +47,28 @@ export const createReceptionsit =async (req :RequestWithUserSession, res :Respon
         res.status(StatusCodes.BAD_REQUEST).json({ message: 'Receptionist alrady exist in the clinic'})
     }
     
-    await datastore.createReceptionsit(clinic.id, recep.id)
+    await datastore.createreceptionist(clinic.id, recep.id)
     res.status(StatusCodes.OK).json({  message: 'receptionist created' });
 } */
-export const getReceptionsit =async (req :RequestWithUserSession, res :Response) => {
-    const receptionist = await datastore.getReceptionsit(req.params.receptionsitId);
+export const getreceptionist =async (req :RequestWithUserSession, res :Response) => {
+    const receptionist = await datastore.getReceptionist(req.params.receptionistId);
     if(!receptionist){
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'receptionsist doe\'nt exist'})
     }
     res.status(StatusCodes.OK).json( { data: receptionist })
 }
-export const listReceptionsits =async (req :RequestWithUserSession, res :Response) => {
-    const receptionists = await datastore.listReceptionsits(req.user.id);
+export const listreceptionists =async (req :RequestWithUserSession, res :Response) => {
+    const receptionists = await datastore.listReceptionists(req.user.id);
     if(receptionists.length === 0 ){
-        res.status(StatusCodes.NO_CONTENT).json( { message: 'there is no receptionsits exist', data: [] });
+        res.status(StatusCodes.NO_CONTENT).json( { message: 'there is no receptionists exist', data: [] });
     }
     res.status(StatusCodes.OK).json( { data: receptionists });
 }
-export const deleteReceptionsit =async (req :RequestWithUserSession, res :Response) => {
-    const receptionist = await datastore.getReceptionsit(req.params.receptionsitId);
+export const deletereceptionist =async (req :RequestWithUserSession, res :Response) => {
+    const receptionist = await datastore.getReceptionist(req.params.receptionistId);
     if(!receptionist){
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'receptionsist doe\'nt exist'})
     }
-    await datastore.deleteReceptionsit( req.user.id, receptionist.id);
+    await datastore.deleteReceptionist( req.user.id, receptionist.id);
     res.status(StatusCodes.OK).json({ message: 'receptionist deleted'})
 }
